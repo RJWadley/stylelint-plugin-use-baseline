@@ -76,31 +76,24 @@ const baselineIds = new Map([
 ]);
 
 /**
- * Encodes the baseline status and year fields into a single string.
+ * Encodes the baseline status and date fields into a single string.
  * @param {string} status The feature's baseline status.
- * @param {number} year The feature's baseline year.
- * @returns {string} The encoded baseline status and year.
+ * @param {string} date The feature's baseline date.
+ * @returns {string} The encoded baseline status and date.
  */
-function encodeBaselineStatus(status, year) {
-  return `${status}:${year || ""}`;
+function encodeBaselineStatus(status, date) {
+  return `${status}:${date || ""}`;
 }
 
 /**
- * Maps the raw feature status object to a baseline status ID and year.
+ * Maps the raw feature status object to a baseline status ID and date.
  * @param {Object} status The raw feature status object.
- * @returns {Object} An object containing the baseline status and year.
+ * @returns {string} The encoded baseline status and date.
  */
 function mapFeatureStatus(status) {
-  let baselineYear;
+  const baselineDate = status.baseline_low_date?.replace(/^≤/u, "");
 
-  // extract the year part YYYY from the date formatted YYYY-MM-DD
-  if (status.baseline_low_date?.startsWith("≤")) {
-    baselineYear = Number(status.baseline_low_date.slice(1, 5));
-  } else {
-    baselineYear = Number(status.baseline_low_date?.slice(0, 4));
-  }
-
-  return encodeBaselineStatus(baselineIds.get(status.baseline), baselineYear);
+  return encodeBaselineStatus(baselineIds.get(status.baseline), baselineDate);
 }
 
 /**

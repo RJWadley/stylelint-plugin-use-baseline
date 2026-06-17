@@ -166,7 +166,7 @@ Specify which level of Baseline availability to enforce.
 
 - `"widely"` (default) – Allows features supported in all Baseline browsers for at least 30 months.
 - `"newly"` – Allows features supported in all Baseline browsers for less than 30 months. Limited availability features still trigger warnings.
-- `YYYY` – Allows features that became Baseline newly available that year, or earlier. For example, `2023`.
+- `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` – Allows features that became Baseline newly available on or before that cutoff. `YYYY` includes the whole year; `YYYY-MM` includes the whole month. For example, `2023`, `"2023-06"`, or `"2023-06-15"`.
 
 #### `"widely"` (default)
 
@@ -200,15 +200,15 @@ h1:has(+ h2) {
 }
 ```
 
-#### `YYYY`
+#### `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`
 
-Allows features that became Baseline newly available that year, or earlier. For example, `2023`.
+Allows features that became Baseline newly available on or before that cutoff. `YYYY` includes the whole year; `YYYY-MM` includes the whole month. For example, `2023`, `"2023-06"`, or `"2023-06-15"`.
 
 Given:
 
 ```json
 {
-  "plugin/use-baseline": [true, { "available": 2023 }]
+  "plugin/use-baseline": [true, { "available": "2023-06-15" }]
 }
 ```
 

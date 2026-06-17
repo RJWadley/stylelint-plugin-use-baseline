@@ -465,6 +465,64 @@ testRule({
 testRule({
   plugins: [plugin],
   ruleName,
+  config: [true, { available: "2022" }],
+
+  accept: [{ code: "a { height: 100svh; }" }],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2022-11" }],
+
+  reject: [
+    {
+      code: "a { height: 100svh; }",
+      message: messages.notBaselineUnit("svh", "2022-11"),
+      line: 1,
+      column: 16,
+      endLine: 1,
+      endColumn: 19,
+    },
+  ],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2022-12" }],
+
+  accept: [{ code: "a { height: 100svh; }" }],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2022-12-04" }],
+
+  reject: [
+    {
+      code: "a { height: 100svh; }",
+      message: messages.notBaselineUnit("svh", "2022-12-04"),
+      line: 1,
+      column: 16,
+      endLine: 1,
+      endColumn: 19,
+    },
+  ],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2022-12-05" }],
+
+  accept: [{ code: "a { height: 100svh; }" }],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
   config: [true, { available: 2022 }],
 
   accept: [{ code: ".foo { text-align-last: center; }" }],
@@ -489,6 +547,39 @@ testRule({
   plugins: [plugin],
   ruleName,
   config: [true, { available: 2024 }],
+
+  accept: [{ code: ".foo { backdrop-filter: blur(10px); }" }],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2024-09" }],
+
+  accept: [{ code: ".foo { backdrop-filter: blur(10px); }" }],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2024-09-15" }],
+
+  reject: [
+    {
+      code: ".foo { backdrop-filter: blur(10px); }",
+      message: messages.notBaselineProperty("backdrop-filter", "2024-09-15"),
+      line: 1,
+      column: 8,
+      endLine: 1,
+      endColumn: 23,
+    },
+  ],
+});
+
+testRule({
+  plugins: [plugin],
+  ruleName,
+  config: [true, { available: "2024-09-16" }],
 
   accept: [{ code: ".foo { backdrop-filter: blur(10px); }" }],
 });

@@ -357,10 +357,10 @@ class SupportsRules {
  */
 class BaselineAvailability {
   /**
-   * The preferred Baseline year.
-   * @type {number}
+   * The preferred Baseline date.
+   * @type {string}
    */
-  #baselineYear = undefined;
+  #baselineDate = undefined;
 
   /**
    * The preferred Baseline status.
@@ -374,8 +374,10 @@ class BaselineAvailability {
   constructor(availability = "widely") {
     this.availability = availability;
 
-    if (typeof availability === "number") {
-      this.#baselineYear = availability;
+    const baselineDate = normalizeBaselineDate(availability);
+
+    if (typeof availability === "number" || baselineDate !== undefined) {
+      this.#baselineDate = baselineDate;
     } else {
       this.#baselineStatus =
         availability === "widely" ? BASELINE_HIGH : BASELINE_LOW;
@@ -384,20 +386,84 @@ class BaselineAvailability {
 
   /**
    * Determines whether a feature meets the required availability.
-   * @param {Object} encodedStatus A feature's encoded baseline status and year.
+   * @param {Object} encodedStatus A feature's encoded baseline status and date.
    * @returns {boolean} `true` if the feature is supported, `false` if not.
    */
   isSupported(encodedStatus) {
     const parts = encodedStatus.split(":");
     const status = Number(parts[0]);
-    const year = Number(parts[1] || NaN);
+    const baselineDate = normalizeBaselineDate(parts[1]);
 
-    if (this.#baselineYear) {
-      return year <= this.#baselineYear;
+    if (this.#baselineDate) {
+      return baselineDate !== undefined && baselineDate <= this.#baselineDate;
     }
 
     return status >= this.#baselineStatus;
   }
+}
+
+/**
+ * Checks if a value is a supported Baseline date format.
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isBaselineDate(value) {
+  try {
+    return normalizeBaselineDate(value) !== undefined;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Normalizes supported Baseline date formats to YYYY-MM-DD.
+ * @param {unknown} value
+ * @returns {string | undefined}
+ */
+function normalizeBaselineDate(value) {
+  const match = String(value).match(
+    /^(?<year>\d{4})(?:-(?<month>\d{2})(?:-(?<day>\d{2}))?)?$/u,
+  );
+
+  if (match === null) return undefined;
+
+  const { year, month, day } = match.groups;
+
+  if (month === undefined) {
+    return `${year}-12-31`;
+  }
+
+  const monthNumber = Number(month);
+
+  if (monthNumber < 1 || monthNumber > 12) {
+    throw new TypeError(`Invalid Baseline date: ${value}`);
+  }
+
+  if (day === undefined) {
+    return `${year}-${month}-${String(getDaysInMonth(year, month)).padStart(
+      2,
+      "0",
+    )}`;
+  }
+
+  const dayNumber = Number(day);
+  const lastDayOfMonth = getDaysInMonth(year, month);
+
+  if (dayNumber < 1 || dayNumber > lastDayOfMonth) {
+    throw new TypeError(`Invalid Baseline date: ${value}`);
+  }
+
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Gets the number of days in a month.
+ * @param {string} year
+ * @param {string} month
+ * @returns {number}
+ */
+function getDaysInMonth(year, month) {
+  return new Date(Date.UTC(Number(year), Number(month), 0)).getUTCDate();
 }
 
 /**
@@ -461,7 +527,7 @@ const ruleFunction = (primary, secondaryOptions) => {
       {
         actual: secondaryOptions,
         possible: {
-          available: ["widely", "newly", isNumber],
+          available: ["widely", "newly", isNumber, isBaselineDate],
           ignoreAtRules: [isString, isRegExp],
           ignoreProperties: validateObjectWithArrayProps(isString, isRegExp),
           ignoreSelectors: [isString, isRegExp],
