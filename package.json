@@ -40,7 +40,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "validate": "npm run lint && npm run test",
-    "build:baseline": "node tools/generate-baseline.js"
+    "build:baseline": "node tools/generate-baseline.js",
+    "prepare": "pnpm build:baseline && pnpm build"
   },
   "dependencies": {
     "css-tree": "^3.1.0",
